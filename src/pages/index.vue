@@ -1,11 +1,8 @@
 <template>
-<div>后台首页</div>
+
 </template>
 
-<script>
-export default {
-  name: "index"
-}
+<script setup>
 </script>
 
 <style scoped>

@@ -6,6 +6,11 @@ const routes = [
         name: 'home',
         component: () => import('@/pages/index.vue')
     },
+    {
+        path: '/login',
+        name: 'login',
+        component: () => import('@/pages/login.vue')
+    },
     // 将匹配所有内容并将其放在 `$route.params.pathMatch` 下
     {
         path: '/:pathMatch(.*)*',
