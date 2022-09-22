@@ -16,5 +16,5 @@ for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
     app.component(key, component)
 }
 import './permission.js'
-
+import "nprogress/nprogress.css"
 app.mount('#app')

@@ -1,8 +1,8 @@
 import axios from "axios";
 import {useCookies} from "@vueuse/integrations/useCookies";
-import {getToken} from "./auth.js";
+import {getToken, removeToken} from "./auth.js";
 import {toast} from "./uril.js";
-
+import store from '../store/index.js'
 const instance = axios.create({
     baseURL: '/api',
     timeout: 1000
@@ -13,7 +13,7 @@ instance.interceptors.request.use(function (config) {
     // 在发送请求之前做些什么
     // header头添加token
     const cookie = useCookies()
-    const token = getToken('admin-token')
+    const token = getToken()
     if (token) {
         config.headers["token"] = token
     }
@@ -31,7 +31,13 @@ instance.interceptors.response.use(function (response) {
 }, function (error) {
     // 超出 2xx 范围的状态码都会触发该函数。
     // 对响应错误做点什么'
-    toast('Error', error.response.data.msg, 'error')
+    const msg = error.response.data.msg || '请求失败'
+    if (msg === "非法token，请先登录！") {
+        store.commit('user/SET_USERINFO','')
+        removeToken()
+        location.reload()
+    }
+    toast('Error', msg, 'error')
     return Promise.reject(error);
 });
 

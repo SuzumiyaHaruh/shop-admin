@@ -1,6 +1,5 @@
-import {getInfo, getLogin} from "../../api/manager.js";
-import {setToken} from "../../util/auth.js";
-import store from "../index.js";
+import {getInfo, getLogin, getLogout} from "../../api/manager.js";
+import {removeToken, setToken} from "../../util/auth.js";
 
 export default {
     namespaced: true,
@@ -44,6 +43,15 @@ export default {
             await getInfo().then(res => {
                 context.commit('SET_USERINFO', res)
             })
+        },
+        /**
+         * 退出登录
+         */
+        handleLogout(context) {
+            //移除cookie里的token
+            removeToken()
+            //清除当前用户状态
+            context.commit('SET_USERINFO','')
         }
     }
 }

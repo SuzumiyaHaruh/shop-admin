@@ -1,4 +1,5 @@
 import instance from "../util/request.js";
+import * as util from "util";
 
 /**
  * 登录
@@ -21,5 +22,22 @@ export const getInfo = () => {
     return instance({
         url: 'admin/getinfo',
         method: 'POST',
+    })
+}
+export const getLogout = () => {
+    return instance({
+        url: 'admin/logout',
+        method: 'POST',
+    })
+}
+/**
+ * 修改密码
+ * @returns {*}
+ */
+export const getUpdatePassword = ({oldpassword, password, repassword}) => {
+    return instance({
+        url: 'admin/updatepassword',
+        method: 'POST',
+        params: {oldpassword, password, repassword}
     })
 }

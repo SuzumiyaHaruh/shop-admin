@@ -6,6 +6,11 @@
     <router-view/>
 </template>
 
-<style scoped>
-
+<style>
+#nprogress .bar {
+  background: #7631b0 !important;
+}
+#nprogress .spinner .spinner-icon{
+  display: none;
+}
 </style>
