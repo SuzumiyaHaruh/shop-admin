@@ -1,9 +1,13 @@
 <template>
   <div class="f-menu">
     <el-menu
-        default-active="2"
+        :unique-opened="true"
+        :collapse="isCollapse"
         class="f-el-menu"
+        :default-active="defaultActive"
+        :collapse-transition="false"
         @select="handleSelect"
+        :style="{ width:$store.getters.asideWidth }"
     >
       <template v-for="(item,index)  in asideMenus" :key="index">
         <!--      二级菜单-->
@@ -34,34 +38,39 @@
 </template>
 
 <script setup>
-import {useRouter} from "vue-router";
+import {useRoute, useRouter} from "vue-router";
+import {computed, ref} from "vue";
+import {useStore} from "vuex";
 
-const router  =useRouter()
-const asideMenus = [{
-  "name": "后台面板",
-  "icon": "help",
-  "child": [{
-    "name": "主控台",
-    "icon": "home-filled",
-    "frontpath": "/",
-  }]
-}, {
-  "name": "商城管理",
-  "icon": "shopping-bag",
-  "child": [{
-    "name": "商品管理",
-    "icon": "shopping-cart-full",
-    "frontpath": "/goods/list",
-  }]
-}]
-const handleSelect=(e)=>{
+const store = useStore()
+const router = useRouter()
+const route = useRoute()
+const asideMenus = store.getters.menus
+//默认路由
+const defaultActive = ref(route.path)
+/**
+ * 是否折叠
+ * @type {ComputedRef<boolean>}
+ */
+const isCollapse = computed(() => !(store.getters.asideWidth === '250px'))
+/**
+ * 路由跳转
+ * @param e
+ */
+
+const handleSelect = (e) => {
   router.push(e)
 }
 </script>
 
 <style>
 .f-menu {
-  @apply w-[250px] shadow-lg fixed top-[64px] bottom-0 left-0 overflow-auto border-0
+  transition: all 0.2s;
+  @apply shadow-lg bg-white fixed top-[64px] bottom-0 left-0 overflow-y-auto overflow-x-hidden border-0
+}
+
+.f-menu::-webkit-scrollbar {
+  width: 0;
 }
 
 .f-menu .f-el-menu {
@@ -78,5 +87,9 @@ const handleSelect=(e)=>{
 
 .el-menu-item.is-active {
   @apply text-purple-400
+}
+
+:root {
+  --el-menu-active-color: #c084fc
 }
 </style>

@@ -17,8 +17,8 @@ export const showModal = (content, type, title) => {
         content,
         title,
         {
-            confirmButtonText: 'OK',
-            cancelButtonText: 'Cancel',
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
             type: type,
         }
     )

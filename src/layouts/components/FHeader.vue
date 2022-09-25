@@ -4,8 +4,9 @@
             <el-icon class="mr-1"><eleme-filled/></el-icon>
             backendSystem
         </span>
-    <el-icon class="icon-btn">
-      <fold/>
+    <el-icon class="icon-btn" @click="$store.commit('main/handleAsideWidth')">
+      <fold v-if="$store.getters.asideWidth==='250px'"/>
+      <Expand v-else/>
     </el-icon>
     <el-tooltip effect="dark" content="刷新" placement="bottom">
       <el-icon class="icon-btn" @click="handleRefresh">
@@ -96,6 +97,7 @@ const handleRefresh = () => {
 
 <style scoped>
 .f-header {
+  z-index: 100;
   @apply flex items-center bg-purple-500 text-white fixed top-0 left-0 right-0;
   height: 64px;
 }

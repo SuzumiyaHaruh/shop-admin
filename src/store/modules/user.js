@@ -1,12 +1,15 @@
 import {getInfo, getLogin, getLogout} from "../../api/manager.js";
 import {removeToken, setToken} from "../../util/auth.js";
+import store from "../index.js";
 
 export default {
     namespaced: true,
     state() {
         return {
             //用户信息
-            user: {}
+            user: {},
+            //管理员权限
+            ruleNames: []
         }
     },
     mutations: {
@@ -18,6 +21,9 @@ export default {
          */
         SET_USERINFO(state, user) {
             state.user = user
+        },
+        SET_RULENAMES(state, ruleNames) {
+            state.ruleNames = ruleNames
         }
     },
     actions: {
@@ -42,6 +48,8 @@ export default {
         async handleUserInfo(context) {
             await getInfo().then(res => {
                 context.commit('SET_USERINFO', res)
+                context.commit('SET_RULENAMES', res.ruleNames)
+                store.commit('main/SET_MENUS', res.menus)
             })
         },
         /**
@@ -51,7 +59,7 @@ export default {
             //移除cookie里的token
             removeToken()
             //清除当前用户状态
-            context.commit('SET_USERINFO','')
+            context.commit('SET_USERINFO', '')
         }
     }
 }
