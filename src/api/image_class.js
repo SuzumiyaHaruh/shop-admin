@@ -24,9 +24,24 @@ export const createImageClass = (data) => {
 /**
  * 修改图库分类
  */
-export function updateImageClass(id,data){
-    return instance.post("/admin/image_class/"+id,data)
+// export function updateImageClass(id,data){
+//     return instance.post("/admin/image_class/"+id,data)
+// }
+export const updateImageClass = (id, data) => {
+    return instance({
+        url: "/admin/image_class",
+        method: 'POST',
+        params: id, data
+    })
 }
-export function deleteImageClass(id){
-    return instance.post(`/admin/image_class/${id}/delete`)
+/**
+ * 删除图库列表
+ * @param id
+ * @returns {*}
+ */
+export const deleteImageClass = (id) => {
+    return instance({
+        url: `/admin/image_class/${id}/delete`,
+        method: 'POST'
+    })
 }

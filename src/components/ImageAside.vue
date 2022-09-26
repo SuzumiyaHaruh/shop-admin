@@ -1,7 +1,7 @@
 <template>
   <el-aside width="220px" class="image-aside" v-loading="loading">
     <div class="top">
-      <AsideList @delete="handleDelete(item.id)" @edit="handleEdit(item)" @click="activeId=item.id"
+      <AsideList @delete="handleDelete(item.id)" @edit="handleEdit(item)" @click="handleChangeActiveId(item.id)"
                  :active="activeId === item.id"
                  v-for="(item,index) in list" :key="index">
         {{ item.name }}
@@ -93,7 +93,7 @@ const getData = (p = null) => {
         list.value = res.list
         let item = list.value[0]
         if (item) {
-          activeId.value = item.id
+          handleChangeActiveId(item.id)
         }
       })
       .finally(() => {
@@ -126,6 +126,13 @@ const handleDelete = (id) => {
               getData()
             })
       })
+}
+//选中图库分类id
+const emits=defineEmits(['change'])
+//却换分类
+const handleChangeActiveId = (id) => {
+  activeId.value = id
+  emits('change',id)
 }
 defineExpose({
   handleCreate

@@ -1,13 +1,16 @@
 <template>
-  <el-container class="bg-white shadow rounded" :style="{ height: (h + 'px') }">
+  <el-container class="bg-white shadow rounded" :style="{ height: (h + 'px') }">、
     <el-header class="image-header">
-      <el-button type="primary" color="#9f4eea"  size="small" @click="handleOpenCreate">新增图片分类</el-button>
+      <!--    新增图片-->
+      <el-button type="warning" plain  size="small" @click="handleOpenCreate">新增图片分类</el-button>
+      <!--    上传图片-->
+      <el-button type="success" plain size="small" @click="handleOpenUpload">上传图片</el-button>
     </el-header>
     <el-container>
       <!--侧边-->
-      <image-aside ref="ImagAside"/>
+      <image-aside ref="ImagAside" @change="handleAsideChange"/>
       <!--    主体-->
-      <image-main/>
+      <image-main ref="ImageMainRef"/>
     </el-container>
   </el-container>
 </template>
@@ -17,14 +20,27 @@ import ImageAside from "../../components/ImageAside.vue";
 import ImageMain from "../../components/ImageMain.vue";
 import {ref} from "vue";
 
+const ImageMainRef = ref(null)
 const ImagAside = ref(null)
 const windowHeight = window.innerHeight || document.body.clientHeight
 const h = windowHeight - 64 - 44 - 40
 /**
  * 打开侧边栏
  */
-const handleOpenCreate=()=>{
+const handleOpenCreate = () => {
   ImagAside.value.handleCreate()
+}
+/**
+ * 打开上传图片侧边栏
+ */
+const handleOpenUpload = () => {
+  ImageMainRef.value.ImageOpen()
+}
+/**
+ *处理子传的id
+ */
+const handleAsideChange = (image_classId) => {
+  ImageMainRef.value.loadData(image_classId)
 }
 </script>
 <style>
