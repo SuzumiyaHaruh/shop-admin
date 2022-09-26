@@ -41,3 +41,46 @@ export const getUpdatePassword = ({oldpassword, password, repassword}) => {
         params: {oldpassword, password, repassword}
     })
 }
+
+/**
+ * 获取管理员权限
+ * @param page
+ * @param query
+ * @returns {*}
+ */
+export function getManagerList(page, query = {}) {
+    let q = []
+    for (const key in query) {
+        if (query[key]) {
+            q.push(`${key}=${encodeURIComponent(query[key])}`)
+        }
+    }
+    let r = q.join("&")
+    r = r ? ("?" + r) : ""
+
+    return instance.get(`/admin/manager/${page}${r}`)
+}
+
+/**
+ * 修改管理员状态
+ * @param id
+ * @param status
+ * @returns {*}
+ */
+export function updateManagerStatus(id, status) {
+    return instance.post(`/admin/manager/${id}/update_status`, {
+        status
+    })
+}
+
+export function createManager(data) {
+    return instance.post(`/admin/manager`, data)
+}
+
+export function updateManager(id, data) {
+    return instance.post(`/admin/manager/${id}`, data)
+}
+
+export function deleteManager(id) {
+    return instance.post(`/admin/manager/${id}/delete`)
+}
