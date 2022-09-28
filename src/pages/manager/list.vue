@@ -19,16 +19,7 @@
 
 
     <!-- 新增|刷新 -->
-    <div class="flex items-center justify-between mb-4">
-      <el-button color="#9f4eea" type="primary" size="small" @click="handleCreate">新增</el-button>
-      <el-tooltip effect="dark" content="刷新数据" placement="top">
-        <el-button text @click="getData">
-          <el-icon :size="20">
-            <Refresh/>
-          </el-icon>
-        </el-button>
-      </el-tooltip>
-    </div>
+    <list-header @create="handleCreate" @refresh="getData" />
 
     <el-table :data="tableData" stripe style="width: 100%" v-loading="loading">
       <el-table-column label="管理员" width="200">
@@ -76,7 +67,7 @@
     </el-table>
 
     <div class="flex items-center justify-center mt-5">
-      <el-pagination  layout="prev, pager ,next" :total="total" :current-page="currentPage" :page-size="limit"
+      <el-pagination layout="prev, pager ,next" :total="total" :current-page="currentPage" :page-size="limit"
                      @current-change="getData"/>
     </div>
 
@@ -89,7 +80,7 @@
           <el-input v-model="form.password" placeholder="密码"></el-input>
         </el-form-item>
         <el-form-item label="头像" prop="avatar">
-          <el-input v-model="form.avatar"></el-input>
+          <choose-image v-model="form.avatar"/>
         </el-form-item>
         <el-form-item label="所属角色" prop="role_id">
           <el-select v-model="form.role_id" placeholder="选择所属角色">
@@ -114,137 +105,65 @@ import {ref, reactive, computed} from "vue"
 import {createManager, deleteManager, getManagerList, updateManager, updateManagerStatus} from "../../api/manager.js";
 import {toast} from "../../util/uril.js";
 import FormDrawer from "../../components/FormDrawer.vue";
+import ChooseImage from "../../components/ChooseImage.vue";
 
-const searchForm = reactive({
-  keyword: ""
+import {useInitForm, useInitTable} from "../../util/useCommon.js";
+import ListHeader from "../../components/ListHeader.vue";
+//搜索和列表分页//删除修改
+const {
+  searchForm,
+  resetSearchForm,
+  tableData,
+  loading,
+  currentPage,
+  total,
+  limit,
+  getData,
+  handleDelete,
+  handleStatusChange
+} = useInitTable({
+  searchForm: {
+    keyword: ""
+  },
+  getList: getManagerList,
+  delete:deleteManager,
+  updateStatus:updateManagerStatus,
+  onGetListSuccess: (res) => {
+    tableData.value = res.list.map(o => {
+      o.statusLoading = false
+      return o
+    })
+    total.value = res.totalCount
+    roles.value = res.roles
+  }
 })
-const resetSearchForm = () => {
-  searchForm.keyword = ""
-  getData()
-}
 
 const roles = ref([])
 
-const tableData = ref([])
-const loading = ref(false)
-
-// 分页
-const currentPage = ref(1)
-const total = ref(0)
-const limit = ref(10)
-
-// 获取数据
-function getData(p = null) {
-  if (typeof p == "number") {
-    currentPage.value = p
-  }
-
-  loading.value = true
-  getManagerList(currentPage.value, searchForm)
-      .then(res => {
-        tableData.value = res.list.map(o => {
-          o.statusLoading = false
-          return o
-        })
-        total.value = res.totalCount
-        roles.value = res.roles
-      })
-      .finally(() => {
-        loading.value = false
-      })
-}
-
-getData()
-
-// 删除
-const handleDelete = (id) => {
-  loading.value = true
-  deleteManager(id).then(res => {
-    toast("删除成功")
-    getData()
-  })
-      .finally(() => {
-        loading.value = false
-      })
-}
-
-// 表单部分
-const formDrawerRef = ref(null)
-const formRef = ref(null)
-const form = reactive({
-  username: "",
-  password: "",
-  role_id: null,
-  status: 1,
-  avatar: ""
-})
-const rules = {}
-const editId = ref(0)
-const drawerTitle = computed(() => editId.value ? "修改" : "新增")
-
-const handleSubmit = () => {
-  formRef.value.validate((valid) => {
-    if (!valid) return
-
-    formDrawerRef.value.showLoading()
-
-    const fun = editId.value ? updateManager(editId.value, form) : createManager(form)
-
-    fun.then(res => {
-      toast(drawerTitle.value + "成功")
-      // 修改刷新当前页，新增刷新第一页
-      getData(editId.value ? false : 1)
-      formDrawerRef.value.close()
-    })
-        .finally(() => {
-          formDrawerRef.value.hideLoading()
-        })
-
-  })
-}
-
-// 重置表单
-function resetForm(row = false) {
-  if (formRef.value) formRef.value.clearValidate()
-  if (row) {
-    for (const key in form) {
-      form[key] = row[key]
-    }
-  }
-}
-
-// 新增
-const handleCreate = () => {
-  editId.value = 0
-  resetForm({
+//新增修改
+const {
+  formDrawerRef,
+  formRef,
+  form,
+  rules,
+  drawerTitle,
+  handleSubmit,
+  resetForm,
+  handleCreate,
+  handleEdit
+} = useInitForm({
+  form: {
     username: "",
     password: "",
     role_id: null,
     status: 1,
     avatar: ""
-  })
-  formDrawerRef.value.open()
-}
+  },
+  getData,
+  update: updateManager,
+  create: createManager
+})
 
-// 编辑
-const handleEdit = (row) => {
-  editId.value = row.id
-  resetForm(row)
-  formDrawerRef.value.open()
-}
-
-// 修改状态
-const handleStatusChange = (status, row) => {
-  row.statusLoading = true
-  updateManagerStatus(row.id, status)
-      .then(res => {
-        toast("修改状态成功")
-        row.status = status
-      })
-      .finally(() => {
-        row.statusLoading = false
-      })
-}
 
 </script>
 <style scoped>

@@ -38,7 +38,7 @@
 </template>
 
 <script setup>
-import {useRoute, useRouter} from "vue-router";
+import {onBeforeRouteUpdate, useRoute, useRouter} from "vue-router";
 import {computed, ref} from "vue";
 import {useStore} from "vuex";
 
@@ -48,6 +48,10 @@ const route = useRoute()
 const asideMenus = store.getters.menus
 //默认路由
 const defaultActive = ref(route.path)
+//监听路由变化
+onBeforeRouteUpdate((to, format) => {
+  defaultActive.value = to.path
+})
 /**
  * 是否折叠
  * @type {ComputedRef<boolean>}
@@ -61,6 +65,7 @@ const isCollapse = computed(() => !(store.getters.asideWidth === '250px'))
 const handleSelect = (e) => {
   router.push(e)
 }
+
 </script>
 
 <style>

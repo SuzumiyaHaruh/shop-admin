@@ -53,97 +53,58 @@ import {createNotice, deleteNotice, getNoticeList, updateNotice} from "../../api
 import FormDrawer from "../../components/FormDrawer.vue";
 import {createImageClass, updateImageClass} from "../../api/image_class.js";
 import {toast} from "../../util/uril.js";
-
-const tableData = ref([])
-const loading = ref(false)
-// 分页
-const currentPage = ref(1)
-const total = ref(0)
-const limit = ref(10)
-//是否编辑状态
-const editId = ref(0)
-// 表单部分
-const formDrawerRef = ref(null)
-const formRef = ref(null)
-const form = reactive({
-  title: "",
-  content: ""
+//分页
+import {useInitForm, useInitTable} from "../../util/useCommon.js";
+import {createManager, updateManager} from "../../api/manager.js";
+//搜索和列表分页
+const {
+  searchForm,
+  resetSearchForm,
+  tableData,
+  loading,
+  currentPage,
+  total,
+  limit,
+  getData,
+  handleDelete
+} = useInitTable({
+  getList: getNoticeList,
+  delete: deleteNotice
 })
-const rules = {
-  title: [{
-    required: true,
-    message: '公告标题不能为空',
-    trigger: 'blur'
-  }],
-  content: [{
-    required: true,
-    message: '公告内容不能为空',
-    trigger: 'blur'
-  }]
-}
-const title = computed(() => editId.value ? "修改" : "新增")
-const getData = (p = null) => {
-  if (typeof p === "number") {
-    currentPage.value = p
-  }
-  loading.value = true
-  getNoticeList(currentPage.value)
-      .then(res => {
-        console.log(res)
-        tableData.value = res.list
-        total.value = res.totalCount
-      })
-      .finally(() => loading.value = false)
-}
-getData()
 
-/**
- * 删除
- * @param id
- */
-const handleDelete = (id) => {
-  deleteNotice(id)
-      .then(res => {
-        toast('删除成功', 'success', 'success')
-        getData(1)
-      })
-}
-/**
- * 新增
- */
-const handleCreate = () => {
-  editId.value = 0
-  form.content = ''
-  form.title = ''
-  formDrawerRef.value.open()
-}
-/**
- * 编辑
- */
-const handleEdit = (item, id) => {
-  editId.value = id
-  form.content = item.content
-  form.title = item.title
-  formDrawerRef.value.open()
-}
-/**
- * 提交事件
- */
-const handleSubmit = () => {
-  formRef.value.validate((valid) => {
-    if (!valid) return
-    formDrawerRef.value.showLoading()
-    const fun = editId.value ? updateNotice(editId.value, form) : createNotice(form)
-    fun.then(res => {
-      toast(title.value + '成功', 'success', 'success')
-      // 修改刷新当前页，新增刷新第一页
-      getData(editId.value ? false : 1)
-      formDrawerRef.value.close()
-    }).finally(() => {
-      formDrawerRef.value.hideLoading()
-    })
-  })
-}
+//新增修改
+const {
+  formDrawerRef,
+  formRef,
+  form,
+  rules,
+  drawerTitle,
+  handleSubmit,
+  resetForm,
+  handleCreate,
+  handleEdit
+} = useInitForm({
+  form: {
+    title: "",
+    content: ""
+  },
+  rules: {
+    title: [{
+      required: true,
+      message: '公告标题不能为空',
+      trigger: 'blur'
+    }],
+    content: [{
+      required: true,
+      message: '公告内容不能为空',
+      trigger: 'blur'
+    }]
+  },
+  getData,
+  update: updateNotice,
+  create: createNotice
+})
+
 </script>
 <style scoped>
 .el-button.is-text {

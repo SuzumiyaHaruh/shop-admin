@@ -3,12 +3,14 @@
     <div class="top p-3">
       <el-row :gutter="10">
         <el-col v-for="(item,index) in list" :key="index" :span="6">
-          <el-card shadow="hover" class="relative  mb-3" :body-style="{'padding':0}">
+          <el-card :class="{'border-purple-500':item.checked}" shadow="hover" class="relative  mb-3"
+                   :body-style="{'padding':0}">
             <el-image :preview-src-list="[item.url]" :initial-index="0" :src="item.url" fit="cover"
                       class="w-full h-[150px]"></el-image>
             <div class="image-title">{{ item.name }}</div>
             <div class="flex items-center justify-center p-2">
-              <el-button @click="handleRename(item)" type="primary" size="small" text>重命名</el-button>
+              <el-checkbox v-show="openChoose" v-model="item.checked" @change="handleChooseChange(item)"/>
+              <el-button class="!m-0" @click="handleRename(item)" type="primary" size="small" text>重命名</el-button>
               <el-button @click="onDelete(item)" type="primary" size="small" text>删除</el-button>
             </div>
           </el-card>
@@ -31,7 +33,7 @@
 </template>
 
 <script setup>
-import {defineEmits, ref} from "vue"
+import {computed, defineEmits, ref} from "vue"
 import {deleteImage, getImageList, updateImage} from "../api/image.js";
 import {showModal, showPrompt, toast} from "../util/uril.js";
 import UploadFile from "./UploadFile.vue";
@@ -51,7 +53,10 @@ const getData = (p = null) => {
   getImageList(image_class_id.value, currentPage.value)
       .then(res => {
         total.value = res.totalCount
-        list.value = res.list
+        list.value = res.list.map(o => {
+          o.checked = false
+          return o
+        })
       })
       .finally(() => {
         loading.value = false
@@ -109,6 +114,26 @@ const handleUpSuccess = () => {
   toast('上传成功', 'success', 'success')
   drawer.value = false
   getData()
+}
+defineProps({
+  openChoose: {
+    type:Boolean,
+    default:false,
+  }
+})
+/**
+ * 选中的图片
+ * @param item
+ */
+// 选中的图片
+const emit = defineEmits(["choose"])
+const checkedImage = computed(() => list.value.filter(o => o.checked))
+const handleChooseChange = (item) => {
+  if (item.checked && checkedImage.value.length > 1) {
+    item.checked = false
+    return toast(`最多只能选中1张`, 'error', "error")
+  }
+  emit("choose", checkedImage.value)
 }
 defineExpose({
   loadData,
