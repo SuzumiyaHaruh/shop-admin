@@ -1,16 +1,7 @@
 <template>
   <el-card shadow="hover" class="border-0">
     <!-- 新增|刷新 -->
-    <div class="flex items-center justify-between mb-4">
-      <el-button color="#9f4eea" type="primary" size="small" @click="handleCreate">新增</el-button>
-      <el-tooltip effect="dark" content="刷新数据" placement="top">
-        <el-button @click="getData" text>
-          <el-icon :size="20">
-            <Refresh/>
-          </el-icon>
-        </el-button>
-      </el-tooltip>
-    </div>
+    <list-header layout="create,refresh" @create="handleCreate" @refresh="getData"/>
 
     <el-table :data="tableData" stripe style="width: 100%" v-loading="loading">
       <el-table-column prop="title" label="公告标题"/>
@@ -56,6 +47,7 @@ import {toast} from "../../util/uril.js";
 //分页
 import {useInitForm, useInitTable} from "../../util/useCommon.js";
 import {createManager, updateManager} from "../../api/manager.js";
+import ListHeader from "../../components/ListHeader.vue";
 //搜索和列表分页
 const {
   searchForm,

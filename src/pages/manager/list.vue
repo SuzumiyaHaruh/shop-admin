@@ -1,25 +1,16 @@
 <template>
   <el-card shadow="never" class="border-0">
     <!-- 搜索 -->
-    <el-form :model="searchForm" label-width="80px" class="mb-3" size="small">
-      <el-row :gutter="20">
-        <el-col :span="8" :offset="0">
-          <el-form-item label="关键词">
-            <el-input v-model="searchForm.keyword" placeholder="管理员昵称" clearable></el-input>
-          </el-form-item>
-        </el-col>
-        <el-col :span="8" :offset="8">
-          <div class="flex items-center justify-end">
-            <el-button color="#9f4eea" type="primary" @click="getData">搜索</el-button>
-            <el-button @click="resetSearchForm">重置</el-button>
-          </div>
-        </el-col>
-      </el-row>
-    </el-form>
+
+    <search :model="searchForm" @search="getData" @reset="resetSearchForm">
+      <search-item label="关键词">
+        <el-input v-model="searchForm.keyword" placeholder="管理员昵称" clearable></el-input>
+      </search-item>
+    </search>
 
 
     <!-- 新增|刷新 -->
-    <list-header @create="handleCreate" @refresh="getData" />
+    <list-header @create="handleCreate" @refresh="getData"/>
 
     <el-table :data="tableData" stripe style="width: 100%" v-loading="loading">
       <el-table-column label="管理员" width="200">
@@ -109,6 +100,8 @@ import ChooseImage from "../../components/ChooseImage.vue";
 
 import {useInitForm, useInitTable} from "../../util/useCommon.js";
 import ListHeader from "../../components/ListHeader.vue";
+import Search from "../../components/Search.vue";
+import SearchItem from "../../components/SearchItem.vue";
 //搜索和列表分页//删除修改
 const {
   searchForm,
@@ -126,8 +119,8 @@ const {
     keyword: ""
   },
   getList: getManagerList,
-  delete:deleteManager,
-  updateStatus:updateManagerStatus,
+  delete: deleteManager,
+  updateStatus: updateManagerStatus,
   onGetListSuccess: (res) => {
     tableData.value = res.list.map(o => {
       o.statusLoading = false

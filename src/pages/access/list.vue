@@ -131,7 +131,7 @@ const addChild = (id) => {
   form.status = 1
 }
 </script>
-<style>
+<style scoped>
 .custom-tree-node {
   flex: 1;
   display: flex;

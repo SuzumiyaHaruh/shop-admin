@@ -1,6 +1,7 @@
 import {ref, reactive, computed} from "vue"
 import {createManager, deleteManager, updateManager, updateManagerStatus} from "../api/manager.js";
 import {toast} from "./uril.js";
+import {deleteSkus} from "../api/skus.js";
 
 // 修改状态和删除,分页
 export function useInitTable(opt = {}) {
@@ -71,6 +72,48 @@ export function useInitTable(opt = {}) {
                 row.statusLoading = false
             })
     }
+
+    // 批量修改状态
+    const handleMultiStatusChange = (status) => {
+        loading.value = true
+        opt.updateStatus(multiSelectionIds.value,status)
+            .then(res => {
+                toast("修改状态成功")
+                // 清空选中
+                if (multipleTableRef.value) {
+                    multipleTableRef.value.clearSelection()
+                }
+                getData()
+            })
+            .finally(() => {
+                loading.value = false
+            })
+    }
+    // 多选删除
+    /**
+     * 多选
+     */
+//多选中id
+    const multipleTableRef = ref(null)
+    const multiSelectionIds = ref([])
+    const handleSelectionChange = (e) => {
+        multiSelectionIds.value = e.map(item => item.id)
+    }
+    const handleMutiDelete = () => {
+        loading.value = true
+        opt.delete(multiSelectionIds.value)
+            .then(res => {
+                toast('批量删除成功', 'success', 'success')
+                // 清空选中
+                if (multipleTableRef.value) {
+                    multipleTableRef.value.clearSelection()
+                    getData()
+                }
+            })
+            .finally(() => {
+                loading.value = false
+            })
+    }
     return {
         searchForm,
         resetSearchForm,
@@ -81,7 +124,12 @@ export function useInitTable(opt = {}) {
         limit,
         getData,
         handleDelete,
-        handleStatusChange
+        handleStatusChange,
+        handleSelectionChange,
+        handleMutiDelete,
+        multipleTableRef,
+        handleMultiStatusChange,
+        multiSelectionIds
     }
 }
 
@@ -103,8 +151,13 @@ export function useInitForm(opt = {}) {
             if (!valid) return
 
             formDrawerRef.value.showLoading()
-
-            const fun = editId.value ? opt.update(editId.value, form) : opt.create(form)
+            let body = {}
+            if(opt.beforeSubmit && typeof opt.beforeSubmit == "function"){
+                body = opt.beforeSubmit({ ...form })
+            } else {
+                body = form
+            }
+            const fun = editId.value ? opt.update(editId.value, body) : opt.create(body)
 
             fun.then(res => {
                 toast(drawerTitle.value + "成功")
@@ -137,7 +190,7 @@ export function useInitForm(opt = {}) {
     }
 
 // 编辑
-    const handleEdit = (row) => {
+    const handleEdit = (row, id) => {
         editId.value = row.id
         resetForm(row)
         formDrawerRef.value.open()
@@ -154,4 +207,6 @@ export function useInitForm(opt = {}) {
         handleEdit
     }
 }
+
+
 
