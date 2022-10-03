@@ -11,7 +11,7 @@
           </el-icon>
           <span>{{ data.name }}</span>
           <span class="custom-sw">
-            <el-switch :modelValue="data.status" :active-value="1" :inactive-value="0"
+            <el-switch  :modelValue="data.status" :active-value="1" :inactive-value="0"
                        @change="handleStatusChange($event,data)"
             />
             <el-button text type="primary" @click.stop="handleEdit(data)" size="small">修改</el-button>
